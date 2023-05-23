@@ -1,0 +1,34 @@
+[*]
+[*] GTKWave Analyzer v3.3.107 (w)1999-2020 BSI
+[*] Tue May 23 23:20:34 2023
+[*]
+[dumpfile] "/Users/liu91/Code/AXI_stream_width_converter/test.vcd"
+[dumpfile_mtime] "Tue May 23 23:19:31 2023"
+[dumpfile_size] 3903
+[savefile] "/Users/liu91/Code/AXI_stream_width_converter/upsizer.gtkw"
+[timestart] 0
+[size] 1000 600
+[pos] -1 -1
+*0.000000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[sst_width] 193
+[signals_width] 184
+[sst_expanded] 1
+[sst_vpaned_height] 167
+@28
+test.clk
+@29
+test.reset
+@22
+test.m_axis_tdata[63:0]
+@28
+test.m_axis_tlast
+test.m_axis_tready
+test.m_axis_tvalid
+@22
+test.s_axis_tdata[31:0]
+@28
+test.s_axis_tlast
+test.s_axis_tready
+test.s_axis_tvalid
+[pattern_trace] 1
+[pattern_trace] 0
