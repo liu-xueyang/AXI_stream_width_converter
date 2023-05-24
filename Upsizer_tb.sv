@@ -7,7 +7,7 @@ module test;
   initial begin
      # 5 reset = 0;
      # 50 reset = 1;
-     # 1000 $stop;
+     # 300 $stop;
   end
 
   /* Make a regular pulsing clock. */
@@ -19,7 +19,9 @@ module test;
   reg s_axis_tlast = 0;
   reg m_axis_tready = 1;
   initial begin
-    #100 s_axis_tvalid = 1;
+    #80 s_axis_tvalid = 1;
+    #130 s_axis_tlast = 1;
+    #10 s_axis_tlast = 0; 
   end
   always #10 s_axis_tdata = s_axis_tdata + 16;
 

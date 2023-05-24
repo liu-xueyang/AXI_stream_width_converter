@@ -23,16 +23,20 @@ module axis_dwidth_upsizer #(
   logic [32:0] cnt;
   // Define state register and next state variables
   logic [1:0] state_reg;
+  logic m_axis_tlast_local;
 //   logic [1:0] next_state;
   always @(posedge aclk) begin
-    m_axis_tdata    <= s_reg;
     if (aresetn == 0) begin
       state_reg       <= READY;
       cnt             <=  0;
       s_axis_tready   <=  1;
       m_axis_tvalid   <=  0;
+      m_axis_tlast    <=  0;
+      m_axis_tlast_local <= 0;
       s_reg           <= '0;
     end else begin
+      m_axis_tdata    <= s_reg;
+      if (s_axis_tlast == 1) m_axis_tlast_local <= 1;
       // State transitions and outputs
       case (state_reg)
         READY:
@@ -41,12 +45,16 @@ module axis_dwidth_upsizer #(
             if (s_axis_tvalid == 1) begin
               s_reg[WIDTH-1:0] <= s_axis_tdata;
               state_reg   <= LOAD;
-              cnt           <= cnt + 1;	
+              cnt           <= cnt + 1;
             end
           end
         LOAD:
           begin
-            if (cnt < NUM_REG  & s_axis_tvalid == 1) begin
+            if (cnt < NUM_REG & m_axis_tlast_local == 1) begin
+              s_reg <= (s_reg << WIDTH);
+              cnt            <= cnt + 1;
+              state_reg      <= LOAD;
+            end else if (cnt < NUM_REG  & s_axis_tvalid == 1) begin
               s_reg <= (s_reg << WIDTH) | s_axis_tdata;
               cnt            <= cnt + 1;
               state_reg      <= LOAD;
@@ -56,6 +64,7 @@ module axis_dwidth_upsizer #(
               state_reg       <= WRTARRAY;
               s_axis_tready   <= 0;
               m_axis_tvalid   <= 1;
+              m_axis_tlast    <= m_axis_tlast_local;
               cnt <= 0;
             end
           end
@@ -65,6 +74,8 @@ module axis_dwidth_upsizer #(
               state_reg       <= READY;
               m_axis_tvalid <= 0;
               s_axis_tready   <= 1;
+              m_axis_tlast    <= 0;
+              m_axis_tlast_local <= 0;
             end
           end
       endcase
