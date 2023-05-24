@@ -39,15 +39,15 @@ module my_axis_dwidth_upsize #(
           begin
             cnt <=  0;
             if (s_axis_tvalid == 1) begin
-              s_reg[WIDTH:0] <= s_axis_tdata;
+              s_reg[WIDTH-1:0] <= s_axis_tdata;
               state_reg   <= LOAD;
               cnt           <= cnt + 1;	
             end
           end
         LOAD:
           begin
-            if (cnt < NUM_REG & s_axis_tvalid == 1) begin
-              s_reg<= s_reg[(NUM_REG - 1)*WIDTH - 1:0] & s_axis_tdata;
+            if (cnt < NUM_REG  & s_axis_tvalid == 1) begin
+              s_reg <= (s_reg << WIDTH) | s_axis_tdata;
               cnt            <= cnt + 1;
               state_reg      <= LOAD;
             end else if (cnt < NUM_REG & s_axis_tvalid == 0) 
@@ -56,6 +56,7 @@ module my_axis_dwidth_upsize #(
               state_reg       <= WRTARRAY;
               s_axis_tready   <= 0;
               m_axis_tvalid   <= 1;
+              cnt <= 0;
             end
           end
         WRTARRAY:

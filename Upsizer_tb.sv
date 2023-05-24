@@ -21,6 +21,7 @@ module test;
   initial begin
     #100 s_axis_tvalid = 1;
   end
+  always #10 s_axis_tdata = s_axis_tdata + 16;
 
   wire s_axis_tready;
   wire m_axis_tvalid;
