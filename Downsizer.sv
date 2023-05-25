@@ -11,8 +11,8 @@ module axis_dwidth_downsizer #(
 
     output logic m_axis_tvalid,  // output wire m_axis_tvalid
     input  logic m_axis_tready,  // input wire m_axis_tready
-    output logic [WIDTH-1:0] m_axis_tdata,    // output wire [31 : 0] m_axis_tdata
-    output logic m_axis_tlast
+    output [WIDTH-1:0] m_axis_tdata,    // output wire [31 : 0] m_axis_tdata
+    output m_axis_tlast
 );
   // Define the states as enum
     localparam READY = 0;
@@ -23,18 +23,20 @@ module axis_dwidth_downsizer #(
   logic [32:0] cnt;
   // Define state register and next state variables
   logic [1:0] state_reg;
-//   logic [1:0] next_state;
-    
+  logic m_axis_tlast_local;
+  assign m_axis_tdata = s_reg[NUM_REG*WIDTH - 1:(NUM_REG-1)*WIDTH];
+  assign m_axis_tlast = (cnt == NUM_REG - 1) & m_axis_tlast_local;
   always @(posedge aclk) begin
-    m_axis_tdata <= s_reg[WIDTH - 1:0];
+    
     if (aresetn == 0) begin
       state_reg       <= READY;
       cnt             <=  0;
       s_axis_tready   <=  1;
       m_axis_tvalid   <=  0;
+      m_axis_tlast_local <= 0;
       s_reg           <= '0;
     end else begin
-    //   m_axis_tdata    <= s_reg;
+      if (s_axis_tlast == 1) m_axis_tlast_local <= 1;
       // State transitions and outputs
       case (state_reg)
         READY:
@@ -51,13 +53,14 @@ module axis_dwidth_downsizer #(
           begin
             if (cnt < NUM_REG - 1  & m_axis_tready == 1) begin
                 cnt   <= cnt + 1;
-                s_reg <= s_reg >> WIDTH;
+                s_reg <= s_reg << WIDTH;
             end else if (cnt < NUM_REG - 1 & m_axis_tready == 0) 
                 state_reg <= SHIFT;
             else begin
                 state_reg <= LAST;
-	            m_axis_tvalid <= 0;
-	        end
+	              m_axis_tvalid <= 0;
+                m_axis_tlast_local <= 0;
+	          end
           end
         LAST:
           begin
